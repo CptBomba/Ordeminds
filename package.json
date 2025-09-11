@@ -1,8 +1,8 @@
 {
-  "name": "ordeminds-site",
-  "version": "1.0.0",
+  "name": "ordeminds",
+  "version": "1.1.0",
   "private": true,
-  "description": "Website Ordeminds (Express + Static) for Azure App Service",
+  "description": "Ordeminds — landing page + login (Express + static)",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
