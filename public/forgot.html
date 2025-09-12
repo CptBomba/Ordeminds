@@ -1,1 +1,17 @@
-<!doctype html><html><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>Esqueci a senha</title><link rel='stylesheet' href='/assets/style.css'><script>async function doForgot(e){e.preventDefault();const d=new URLSearchParams(new FormData(e.target));await fetch('/forgot',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:d});alert('Se o e-mail existir, enviaremos instruções.');}</script></head><body><header><nav><div class='logo-wrap'><img src='/assets/logo-mark.png'><img class='brandword' src='/assets/logo-wordmark.png'></div></nav></header><div class='center'><div class='formbox'><h1>Redefinir senha</h1><form onsubmit='doForgot(event)'><input type='email' name='email' placeholder='Seu e-mail' required><button>Enviar link</button></form></div></div></body></html>
+<!doctype html><html lang="pt-br"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Esqueci a senha — Ordeminds</title>
+<link rel="icon" href="/favicon-32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="stylesheet" href="/assets/style.css"/>
+<script defer src="/assets/theme.js"></script>
+</head><body><header><nav>
+<div class="logo-wrap"><img src="/assets/logo-mark.png" alt="logo"/><img class="brandword" src="/assets/logo-wordmark.png" alt="Ordeminds"/></div>
+<span class="spacer"></span>
+<button id="themeToggle" class="btn"></button>
+<a class="btn" href="/login">Entrar</a>
+<a class="btn primary" href="/signup">Criar conta</a>
+</nav></header><div class="center"><div class="formbox"><h1>Redefinir senha</h1>
+<form onsubmit="doForgot(event)"><input type="email" name="email" placeholder="Seu e-mail" required/>
+<button type="submit">Enviar link</button><div class="alt"><a href="/">Voltar</a><span></span></div></form></div></div>
+<script>async function doForgot(e){e.preventDefault();const d=new URLSearchParams(new FormData(e.target));await fetch('/forgot',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:d});alert('Se o e-mail existir, você receberá instruções.');}</script></body></html>

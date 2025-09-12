@@ -1,1 +1,18 @@
-<!doctype html><html><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>Entrar</title><link rel='stylesheet' href='/assets/style.css'><script>async function doLogin(e){e.preventDefault();const d=new URLSearchParams(new FormData(e.target));const r=await fetch('/login',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:d});if(r.redirected)location=r.url;else alert(await r.text());}</script></head><body><header><nav><div class='logo-wrap'><img src='/assets/logo-mark.png'><img class='brandword' src='/assets/logo-wordmark.png'></div></nav></header><div class='center'><div class='formbox'><h1>Entrar</h1><form onsubmit='doLogin(event)'><input type='email' name='email' placeholder='E-mail' required><input type='password' name='password' placeholder='Senha' required><button>Entrar</button><a href='/forgot'>Esqueci a senha</a></form></div></div></body></html>
+<!doctype html><html lang="pt-br"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Entrar — Ordeminds</title>
+<link rel="icon" href="/favicon-32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="stylesheet" href="/assets/style.css"/>
+<script defer src="/assets/theme.js"></script>
+</head><body><header><nav>
+<div class="logo-wrap"><img src="/assets/logo-mark.png" alt="logo"/><img class="brandword" src="/assets/logo-wordmark.png" alt="Ordeminds"/></div>
+<span class="spacer"></span>
+<button id="themeToggle" class="btn"></button>
+<a class="btn" href="/login">Entrar</a>
+<a class="btn primary" href="/signup">Criar conta</a>
+</nav></header><div class="center"><div class="formbox"><h1>Entrar</h1>
+<form onsubmit="doLogin(event)"><input type="email" name="email" placeholder="E-mail" required/>
+<input type="password" name="password" placeholder="Senha" required/><button type="submit">Entrar</button>
+<div class="alt"><a href="/">Voltar</a><a href="/forgot">Esqueci a senha</a></div></form></div></div>
+<script>async function doLogin(e){e.preventDefault();const d=new URLSearchParams(new FormData(e.target));const r=await fetch('/login',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:d});if(r.redirected)location=r.url;else alert(await r.text());}</script></body></html>
