@@ -1,2 +1,2 @@
-# Ordeminds — Auth + Tasks
-Veja README no repositório. Variáveis: SESSION_SECRET, DATA_DIR/DB_FILE (opcional).
+# Ordeminds — Auth + Tasks + Reset por e-mail
+Configure as envs SMTP para envio de e-mail. Veja `server.js`.
