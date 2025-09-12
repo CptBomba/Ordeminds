@@ -1,4 +1,5 @@
-﻿async function me(){ try{const r=await fetch("/api/me"); return await r.json();}catch{return {user:null}} }
+
+async function me(){ try{const r=await fetch("/api/me"); return await r.json();}catch{return {user:null}} }
 function qs(s){return document.querySelector(s)}
 function ce(tag,cls){const e=document.createElement(tag); if(cls) e.className=cls; return e}
 document.addEventListener("click",e=>{ if(e.target.closest(".dropdown .pill")){ e.preventDefault(); e.target.closest(".dropdown").classList.toggle("open"); } else { document.querySelectorAll(".dropdown.open").forEach(d=>d.classList.remove("open")); } });
@@ -27,8 +28,8 @@ document.addEventListener("DOMContentLoaded",renderNav);
 async function drawMonthCalendar(rootId, year, month){
   const root=document.getElementById(rootId); if(!root) return;
   root.innerHTML=""; const header=ce("div","row"); const title=ce("h3"); header.appendChild(title);
-  const prev=ce("button","btn"); prev.textContent=""; prev.style.marginLeft="auto";
-  const next=ce("button","btn"); next.textContent="";
+  const prev=ce("button","btn"); prev.textContent="◀"; prev.style.marginLeft="auto";
+  const next=ce("button","btn"); next.textContent="▶";
   header.appendChild(prev); header.appendChild(next); root.appendChild(header);
   const grid=ce("div","calendar"); root.appendChild(grid);
   async function render(y,m){

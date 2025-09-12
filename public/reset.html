@@ -1,17 +1,17 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="pt-br"><head>
 <meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Definir nova senha  Ordeminds</title>
-<link rel="icon" href="/assets/logo-mark.svg">
+<title>Definir nova senha — Ordeminds</title>
+<link rel="icon" href="/assets/logo-mark.png">
 <link rel="stylesheet" href="/assets/style.css"/>
 <script defer src="/assets/theme.js"></script>
 <script defer src="/assets/app.js"></script>
 </head><body>
 <header><nav>
   <div class="logo-wrap">
-    <img class="mark" src="/assets/logo-mark.svg" alt="logo"/>
-    <img class="word-light" src="/assets/logo-wordmark-white.svg" alt="Ordeminds"/>
-    <img class="word-dark"  src="/assets/logo-wordmark-dark.svg"  alt="Ordeminds"/>
+    <img src="/assets/logo-mark.png" alt="logo"/>
+    <img class="logo-word light" src="/assets/logo-wordmark-white.png" alt="Ordeminds"/>
+    <img class="logo-word dark"  src="/assets/logo-wordmark-dark.png"  alt="Ordeminds"/>
   </div>
   <span class="spacer"></span>
   <button id="themeToggle" class="btn" onclick="toggleTheme()"></button>
@@ -19,6 +19,7 @@
   <a class="btn primary" data-role="loginBtn" href="/signup">Criar conta</a>
   <span id="account"></span>
 </nav></header>
+
 <div class="center"><div class="formbox">
   <h1>Definir nova senha</h1>
   <form method="POST" action="/reset">
@@ -26,7 +27,7 @@
     <input id="token" name="token" placeholder="Token" required/>
     <input type="password" name="password" placeholder="Nova senha" required/>
     <input type="password" name="confirm" placeholder="Confirmar" required/>
-    <button type="submit">Atualizar</button>
+    <button type="submit" class="btn primary" style="margin-top:.6rem">Atualizar</button>
     <div class="alt"><a href="/">Voltar</a><span></span></div>
   </form>
 </div></div>
@@ -34,4 +35,5 @@
 const p=(k)=>new URLSearchParams(location.search).get(k)||"";
 email.value=p("email"); token.value=p("token");
 </script>
+
 </body></html>

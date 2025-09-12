@@ -1,17 +1,17 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="pt-br"><head>
 <meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Relatórios  Ordeminds</title>
-<link rel="icon" href="/assets/logo-mark.svg">
+<title>Relatórios — Ordeminds</title>
+<link rel="icon" href="/assets/logo-mark.png">
 <link rel="stylesheet" href="/assets/style.css"/>
 <script defer src="/assets/theme.js"></script>
 <script defer src="/assets/app.js"></script>
 </head><body>
 <header><nav>
   <div class="logo-wrap">
-    <img class="mark" src="/assets/logo-mark.svg" alt="logo"/>
-    <img class="word-light" src="/assets/logo-wordmark-white.svg" alt="Ordeminds"/>
-    <img class="word-dark"  src="/assets/logo-wordmark-dark.svg"  alt="Ordeminds"/>
+    <img src="/assets/logo-mark.png" alt="logo"/>
+    <img class="logo-word light" src="/assets/logo-wordmark-white.png" alt="Ordeminds"/>
+    <img class="logo-word dark"  src="/assets/logo-wordmark-dark.png"  alt="Ordeminds"/>
   </div>
   <span class="spacer"></span>
   <button id="themeToggle" class="btn" onclick="toggleTheme()"></button>
@@ -19,5 +19,21 @@
   <a class="btn primary" data-role="loginBtn" href="/signup">Criar conta</a>
   <span id="account"></span>
 </nav></header>
-<main class="layout"><aside class="sidebar"><div class="panel"><h3>Menu</h3><div class="grid" style="grid-template-columns:1fr"><a class="btn" href="/app">Painel</a><a class="btn" href="/agenda">Agenda</a><a class="btn" href="/tasks">Tarefas</a><a class="btn" href="/shopping">Compras</a><a class="btn" href="/bills">Contas</a><a class="btn" href="/reports">Relatórios</a><a class="btn" href="/profile">Perfil</a></div></div></aside><section><div class="panel"><h1>Relatórios</h1><canvas id=\"spend\" width=\"1000\" height=\"320\" style=\"width:100%;height:auto\"></canvas></div><script>document.addEventListener(\"DOMContentLoaded\",()=>{ (async()=>{const y=new Date().getFullYear(); const r=await fetch(\"/api/expenses/summary?year=\"+y); const data= await r.json(); const cvs=document.getElementById(\"spend\"), ctx=cvs.getContext(\"2d\"); const W=cvs.width,H=cvs.height, m=40, w=W-m*2, h=H-m*2; const months=[\"J\",\"F\",\"M\",\"A\",\"M\",\"J\",\"J\",\"A\",\"S\",\"O\",\"N\",\"D\"]; const max=Math.max(1,...data.map(v=>v.total)); ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue(\"--card\"); ctx.fillRect(0,0,W,H); ctx.strokeStyle=\"rgba(255,255,255,.25)\"; ctx.beginPath(); ctx.moveTo(m,m); ctx.lineTo(m,H-m); ctx.lineTo(W-m,H-m); ctx.stroke(); const barw=w/12*.6, gap=w/12*.4; data.forEach((mm,i)=>{const x=m + i*(barw+gap)+gap/2; const y=H-m-(mm.total/max)*h; ctx.fillStyle=\"#1AC6B2\"; ctx.fillRect(x,y,barw,(mm.total/max)*h); ctx.fillStyle=\"#b9d4ff\"; ctx.fillText(months[i], x+barw/3, H-m+14); });})(); });</script></section></main>
+
+<main class="layout">
+  <aside class="sidebar">
+    <div class="panel"><h3>Menu</h3>
+      <div class="grid" style="grid-template-columns:1fr">
+        <a class="btn" href="/app">Painel</a><a class="btn" href="/agenda">Agenda</a><a class="btn" href="/tasks">Tarefas</a><a class="btn" href="/shopping">Compras</a><a class="btn" href="/bills">Contas</a><a class="btn" href="/reports">Relatórios</a><a class="btn" href="/profile">Perfil</a>
+      </div>
+    </div>
+  </aside>
+  <section class="grid">
+    
+<div class="panel" style="grid-column:1/3"><h1>Relatórios</h1><canvas id="spend" width="1000" height="320" style="width:100%;height:auto"></canvas></div>
+<script>document.addEventListener("DOMContentLoaded",()=>{ (async()=>{const y=new Date().getFullYear(); const r=await fetch("/api/expenses/summary?year="+y); const data= await r.json(); const cvs=document.getElementById("spend"), ctx=cvs.getContext("2d"); const W=cvs.width,H=cvs.height, m=40, w=W-m*2, h=H-m*2; const months=["J","F","M","A","M","J","J","A","S","O","N","D"]; const max=Math.max(1,...data.map(v=>v.total)); ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue("--card"); ctx.fillRect(0,0,W,H); ctx.strokeStyle="rgba(255,255,255,.25)"; ctx.beginPath(); ctx.moveTo(m,m); ctx.lineTo(m,H-m); ctx.lineTo(W-m,H-m); ctx.stroke(); const barw=w/12*.6, gap=w/12*.4; data.forEach((mm,i)=>{const x=m + i*(barw+gap)+gap/2; const y=H-m-(mm.total/max)*h; ctx.fillStyle="#1AC6B2"; ctx.fillRect(x,y,barw,(mm.total/max)*h); ctx.fillStyle="#b9d4ff"; ctx.fillText(months[i], x+barw/3, H-m+14); });})(); });</script>
+
+  </section>
+</main>
+
 </body></html>

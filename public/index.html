@@ -1,17 +1,17 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="pt-br"><head>
 <meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Ordeminds  Organize a vida</title>
-<link rel="icon" href="/assets/logo-mark.svg">
+<title>Ordeminds — Organize a vida</title>
+<link rel="icon" href="/assets/logo-mark.png">
 <link rel="stylesheet" href="/assets/style.css"/>
 <script defer src="/assets/theme.js"></script>
 <script defer src="/assets/app.js"></script>
 </head><body>
 <header><nav>
   <div class="logo-wrap">
-    <img class="mark" src="/assets/logo-mark.svg" alt="logo"/>
-    <img class="word-light" src="/assets/logo-wordmark-white.svg" alt="Ordeminds"/>
-    <img class="word-dark"  src="/assets/logo-wordmark-dark.svg"  alt="Ordeminds"/>
+    <img src="/assets/logo-mark.png" alt="logo"/>
+    <img class="logo-word light" src="/assets/logo-wordmark-white.png" alt="Ordeminds"/>
+    <img class="logo-word dark"  src="/assets/logo-wordmark-dark.png"  alt="Ordeminds"/>
   </div>
   <span class="spacer"></span>
   <button id="themeToggle" class="btn" onclick="toggleTheme()"></button>
@@ -19,6 +19,7 @@
   <a class="btn primary" data-role="loginBtn" href="/signup">Criar conta</a>
   <span id="account"></span>
 </nav></header>
+
 <main class="layout">
   <aside class="sidebar">
     <div class="panel">
@@ -35,9 +36,10 @@
     </div>
   </aside>
   <section>
-    <div class="panel"><h1>Organize tudo em um só lugar.</h1><p>Agenda, calendário, tarefas, despesas e lembretes  com tema claro/escuro e login seguro.</p></div>
+    <div class="panel"><h1>Organize tudo em um só lugar.</h1><p>Agenda, calendário, tarefas, despesas e lembretes — com tema claro/escuro e login seguro.</p></div>
     <div id="month" class="panel"><h3>Calendário</h3></div>
   </section>
 </main>
 <script>document.addEventListener("DOMContentLoaded",()=>drawMonthCalendar("month", new Date().getFullYear(), new Date().getMonth()));</script>
+
 </body></html>

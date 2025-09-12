@@ -1,17 +1,17 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="pt-br"><head>
 <meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Verificar e-mail  Ordeminds</title>
-<link rel="icon" href="/assets/logo-mark.svg">
+<title>Verificar e-mail — Ordeminds</title>
+<link rel="icon" href="/assets/logo-mark.png">
 <link rel="stylesheet" href="/assets/style.css"/>
 <script defer src="/assets/theme.js"></script>
 <script defer src="/assets/app.js"></script>
 </head><body>
 <header><nav>
   <div class="logo-wrap">
-    <img class="mark" src="/assets/logo-mark.svg" alt="logo"/>
-    <img class="word-light" src="/assets/logo-wordmark-white.svg" alt="Ordeminds"/>
-    <img class="word-dark"  src="/assets/logo-wordmark-dark.svg"  alt="Ordeminds"/>
+    <img src="/assets/logo-mark.png" alt="logo"/>
+    <img class="logo-word light" src="/assets/logo-wordmark-white.png" alt="Ordeminds"/>
+    <img class="logo-word dark"  src="/assets/logo-wordmark-dark.png"  alt="Ordeminds"/>
   </div>
   <span class="spacer"></span>
   <button id="themeToggle" class="btn" onclick="toggleTheme()"></button>
@@ -19,13 +19,14 @@
   <a class="btn primary" data-role="loginBtn" href="/signup">Criar conta</a>
   <span id="account"></span>
 </nav></header>
+
 <div class="center"><div class="formbox">
   <h1>Verificar e-mail</h1>
-  <p class="notice" id="msg">Enviamos um código de 6 dígitos para seu e-mail. Digite abaixo.</p>
+  <p class="notice" id="msg">Enviamos um código de 6 dígitos para seu e‑mail. Digite abaixo.</p>
   <form method="POST" action="/verify">
     <input type="email" name="email" id="email" placeholder="Seu e-mail" required/>
     <input name="code" id="code" placeholder="Código (6 dígitos)" required/>
-    <button type="submit">Confirmar</button>
+    <button type="submit" class="btn primary" style="margin-top:.6rem">Confirmar</button>
     <div class="alt"><a href="/">Voltar</a><a id="res" href="#">Reenviar código</a></div>
   </form>
 </div></div>
@@ -35,4 +36,5 @@ email.value=p("email")||""; document.getElementById("res").href="/resend?email="
 if(p("sent")==="1"){document.getElementById("msg").textContent="Código reenviado!";}
 if(p("err")){const m=decodeURIComponent(p("err"));document.getElementById("msg").classList.add("err");document.getElementById("msg").textContent=m;}
 </script>
+
 </body></html>
