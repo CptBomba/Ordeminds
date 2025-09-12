@@ -1,4 +1,4 @@
-const express = require('express');
+﻿const express = require('express');
 const path = require('path');
 const fs = require('fs');
 const session = require('express-session');
@@ -30,80 +30,21 @@ app.use((req,res,next)=>{
 
 const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, 'data');
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+const UPLOADS = path.join(DATA_DIR, 'uploads'); if(!fs.existsSync(UPLOADS)) fs.mkdirSync(UPLOADS, {recursive:true});
 const DB_FILE = process.env.DB_FILE || path.join(DATA_DIR, 'ordeminds.db');
 const db = new sqlite3.Database(DB_FILE);
 db.serialize(()=>{
-  db.run(`CREATE TABLE IF NOT EXISTS users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
-    email TEXT NOT NULL UNIQUE,
-    password_hash TEXT NOT NULL,
-    email_verified INTEGER DEFAULT 0,
-    verified_at DATETIME,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-  )`);
-  db.run(`CREATE TABLE IF NOT EXISTS tasks (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER NOT NULL,
-    title TEXT NOT NULL,
-    completed INTEGER DEFAULT 0,
-    due_at DATETIME,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY(user_id) REFERENCES users(id)
-  )`);
-  db.run(`CREATE TABLE IF NOT EXISTS events (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER NOT NULL,
-    title TEXT NOT NULL,
-    start_at DATETIME NOT NULL,
-    end_at DATETIME,
-    location TEXT,
-    reminder_min INTEGER DEFAULT 0,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY(user_id) REFERENCES users(id)
-  )`);
-  db.run(`CREATE TABLE IF NOT EXISTS shopping_items (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER NOT NULL,
-    title TEXT NOT NULL,
-    qty TEXT,
-    done INTEGER DEFAULT 0,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY(user_id) REFERENCES users(id)
-  )`);
-  db.run(`CREATE TABLE IF NOT EXISTS bills (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER NOT NULL,
-    title TEXT NOT NULL,
-    amount REAL NOT NULL,
-    due_date DATE NOT NULL,
-    paid INTEGER DEFAULT 0,
-    category TEXT,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY(user_id) REFERENCES users(id)
-  )`);
-  db.run(`CREATE TABLE IF NOT EXISTS email_verifications (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER NOT NULL,
-    code TEXT NOT NULL,
-    expires_at DATETIME NOT NULL,
-    used INTEGER DEFAULT 0,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY(user_id) REFERENCES users(id)
-  )`);
-  db.run(`CREATE TABLE IF NOT EXISTS password_resets (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER NOT NULL,
-    token_hash TEXT NOT NULL,
-    expires_at DATETIME NOT NULL,
-    used INTEGER DEFAULT 0,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY(user_id) REFERENCES users(id)
-  )`);
+  db.run(`CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT,name TEXT,email TEXT NOT NULL UNIQUE,password_hash TEXT NOT NULL,email_verified INTEGER DEFAULT 0,address TEXT,verified_at DATETIME,created_at DATETIME DEFAULT CURRENT_TIMESTAMP)`);
+  db.run(`CREATE TABLE IF NOT EXISTS tasks (id INTEGER PRIMARY KEY AUTOINCREMENT,user_id INTEGER NOT NULL,title TEXT NOT NULL,completed INTEGER DEFAULT 0,due_at DATETIME,created_at DATETIME DEFAULT CURRENT_TIMESTAMP,FOREIGN KEY(user_id) REFERENCES users(id))`);
+  db.run(`CREATE TABLE IF NOT EXISTS events (id INTEGER PRIMARY KEY AUTOINCREMENT,user_id INTEGER NOT NULL,title TEXT NOT NULL,start_at DATETIME NOT NULL,end_at DATETIME,location TEXT,reminder_min INTEGER DEFAULT 0,created_at DATETIME DEFAULT CURRENT_TIMESTAMP,FOREIGN KEY(user_id) REFERENCES users(id))`);
+  db.run(`CREATE TABLE IF NOT EXISTS shopping_items (id INTEGER PRIMARY KEY AUTOINCREMENT,user_id INTEGER NOT NULL,title TEXT NOT NULL,qty TEXT,done INTEGER DEFAULT 0,created_at DATETIME DEFAULT CURRENT_TIMESTAMP,FOREIGN KEY(user_id) REFERENCES users(id))`);
+  db.run(`CREATE TABLE IF NOT EXISTS bills (id INTEGER PRIMARY KEY AUTOINCREMENT,user_id INTEGER NOT NULL,title TEXT NOT NULL,amount REAL NOT NULL,due_date DATE NOT NULL,paid INTEGER DEFAULT 0,category TEXT,created_at DATETIME DEFAULT CURRENT_TIMESTAMP,FOREIGN KEY(user_id) REFERENCES users(id))`);
+  db.run(`CREATE TABLE IF NOT EXISTS email_verifications (id INTEGER PRIMARY KEY AUTOINCREMENT,user_id INTEGER NOT NULL,code TEXT NOT NULL,expires_at DATETIME NOT NULL,used INTEGER DEFAULT 0,created_at DATETIME DEFAULT CURRENT_TIMESTAMP,FOREIGN KEY(user_id) REFERENCES users(id))`);
+  db.run(`CREATE TABLE IF NOT EXISTS password_resets (id INTEGER PRIMARY KEY AUTOINCREMENT,user_id INTEGER NOT NULL,token_hash TEXT NOT NULL,expires_at DATETIME NOT NULL,used INTEGER DEFAULT 0,created_at DATETIME DEFAULT CURRENT_TIMESTAMP,FOREIGN KEY(user_id) REFERENCES users(id))`);
 });
 
 app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+app.use(express.json({ limit: '6mb' }));
 app.use(session({
   secret: process.env.SESSION_SECRET || 'CHANGE-ME',
   resave: false,
@@ -130,6 +71,12 @@ app.get('/verify', (req,res)=>sendPage(res,'verify.html'));
 app.get('/forgot', (req,res)=>sendPage(res,'forgot.html'));
 app.get('/reset', (req,res)=>sendPage(res,'reset.html'));
 app.get('/app', (req,res)=>{ if(!req.session.user) return res.redirect('/login'); return sendPage(res,'app.html'); });
+app.get('/agenda',(req,res)=>{ if(!req.session.user) return res.redirect('/login'); return sendPage(res,'agenda.html'); });
+app.get('/tasks',(req,res)=>{ if(!req.session.user) return res.redirect('/login'); return sendPage(res,'tasks.html'); });
+app.get('/shopping',(req,res)=>{ if(!req.session.user) return res.redirect('/login'); return sendPage(res,'shopping.html'); });
+app.get('/bills',(req,res)=>{ if(!req.session.user) return res.redirect('/login'); return sendPage(res,'bills.html'); });
+app.get('/reports',(req,res)=>{ if(!req.session.user) return res.redirect('/login'); return sendPage(res,'reports.html'); });
+app.get('/profile',(req,res)=>{ if(!req.session.user) return res.redirect('/login'); return sendPage(res,'profile.html'); });
 
 const limiterAuth = rateLimit({ windowMs: 60_000, max: 20 });
 const limiterShort = rateLimit({ windowMs: 60_000, max: 30 });
@@ -143,7 +90,7 @@ function sendVerifyCode(userId, email, cb){
     try {
       await transporter.sendMail({
         from: MAIL_FROM, to: email,
-        subject: 'Ordeminds — Código de verificação',
+        subject: 'Ordeminds  Código de verificação',
         text: `Seu código é ${code}. Expira em 30 minutos.`,
         html: `<h2>${code}</h2><p>Expira em 30 minutos.</p>`
       });
@@ -174,7 +121,7 @@ app.post('/login', limiterAuth, (req,res)=>{
     if(err || !row) return res.status(400).send('Credenciais inválidas');
     const ok = bcrypt.compareSync(password, row.password_hash);
     if(!ok) return res.status(400).send('Credenciais inválidas');
-    req.session.user = { id: row.id, name: row.name, email: row.email, email_verified: row.email_verified };
+    req.session.user = { id: row.id, name: row.name, email: row.email, address: row.address, email_verified: row.email_verified };
     if(!row.email_verified) return res.redirect(`/verify?email=${encodeURIComponent(row.email)}&err=${encodeURIComponent('Confirme seu e-mail para continuar.')}`);
     res.redirect('/app');
   });
@@ -202,7 +149,7 @@ app.post('/verify', limiterShort, (req,res)=>{
       if(new Date(row.expires_at) < new Date()) return res.redirect('/verify?email='+encodeURIComponent(email)+'&err='+encodeURIComponent('Código expirado.'));
       db.run('UPDATE users SET email_verified = 1, verified_at = CURRENT_TIMESTAMP WHERE id = ?', [u.id], (e1)=>{
         db.run('UPDATE email_verifications SET used = 1 WHERE id = ?', [row.id], ()=>{});
-        res.redirect('/app');
+        db.get('SELECT id,name,email,address,email_verified FROM users WHERE id=?',[u.id],(e2,user)=>{ req.session.user=user; res.redirect('/app'); });
       });
     });
   });
@@ -238,76 +185,48 @@ app.post('/reset', limiterShort, (req,res)=>{
   });
 });
 
+// Profile update + avatar
+app.patch('/api/user', (req,res,next)=>{ if(!req.session.user) return res.status(401).json({error:'auth'}); next(); }, (req,res)=>{
+  const {name,address,password,confirm,avatar} = req.body||{};
+  const updates = []; const params=[];
+  if(name!=null){ updates.push('name=?'); params.push(String(name).trim()); req.session.user.name = String(name).trim(); }
+  if(address!=null){ updates.push('address=?'); params.push(String(address).trim()); req.session.user.address = String(address).trim(); }
+  if(password){ if(password!==confirm) return res.status(400).json({error:'confirm'}); const hash=bcrypt.hashSync(password,10); updates.push('password_hash=?'); params.push(hash); }
+  if(updates.length>0) db.run(`UPDATE users SET ${updates.join(', ')} WHERE id=?`, [...params, req.session.user.id], ()=>{});
+  if(avatar && avatar.startsWith('data:image/')){
+    const base64 = avatar.split(',')[1]; const buf = Buffer.from(base64, 'base64');
+    const file = path.join(UPLOADS, `avatar-${req.session.user.id}.png`);
+    fs.writeFileSync(file, buf);
+  }
+  res.json({ok:true});
+});
+app.get('/api/user/avatar', (req,res,next)=>{ if(!req.session.user) return res.status(401).end(); next(); }, (req,res)=>{
+  const file = path.join(UPLOADS, `avatar-${req.session.user.id}.png`);
+  if(fs.existsSync(file)) return res.sendFile(file);
+  res.status(404).end();
+});
+
 // DATA APIs
-app.get('/api/tasks', requireAuth, (req,res)=>{
-  db.all('SELECT * FROM tasks WHERE user_id=? ORDER BY id DESC',[req.session.user.id],(e,rows)=> res.json(rows||[]));
-});
-app.post('/api/tasks', requireAuth, (req,res)=>{
-  const {title}=req.body||{}; if(!title) return res.status(400).json({error:'title'});
-  db.run('INSERT INTO tasks (user_id,title) VALUES (?,?)',[req.session.user.id,title.trim()],function(e){ if(e) return res.status(500).json({error:'db'}); res.status(201).json({id:this.lastID,title:title.trim(),completed:0}); });
-});
-app.patch('/api/tasks/:id', requireAuth, (req,res)=>{
-  const id=parseInt(req.params.id,10); const completed=req.body&&req.body.completed?1:0;
-  db.run('UPDATE tasks SET completed=? WHERE id=? AND user_id=?',[completed,id,req.session.user.id],function(e){ if(e) return res.status(500).json({error:'db'}); res.json({updated:this.changes}); });
-});
-app.delete('/api/tasks/:id', requireAuth, (req,res)=>{
-  const id=parseInt(req.params.id,10);
-  db.run('DELETE FROM tasks WHERE id=? AND user_id=?',[id,req.session.user.id],function(e){ if(e) return res.status(500).json({error:'db'}); res.json({deleted:this.changes}); });
-});
+function requireAuth(req,res,next){ if(!req.session.user) return res.status(401).json({error:'auth'}); next(); }
+app.get('/api/tasks', requireAuth, (req,res)=>{ db.all('SELECT * FROM tasks WHERE user_id=? ORDER BY id DESC',[req.session.user.id],(e,rows)=> res.json(rows||[])); });
+app.post('/api/tasks', requireAuth, (req,res)=>{ const {title}=req.body||{}; if(!title) return res.status(400).json({error:'title'}); db.run('INSERT INTO tasks (user_id,title) VALUES (?,?)',[req.session.user.id,title.trim()],function(e){ if(e) return res.status(500).json({error:'db'}); res.status(201).json({id:this.lastID,title:title.trim(),completed:0}); }); });
+app.patch('/api/tasks/:id', requireAuth, (req,res)=>{ const id=parseInt(req.params.id,10); const completed=req.body&&req.body.completed?1:0; db.run('UPDATE tasks SET completed=? WHERE id=? AND user_id=?',[completed,id,req.session.user.id],function(e){ if(e) return res.status(500).json({error:'db'}); res.json({updated:this.changes}); }); });
+app.delete('/api/tasks/:id', requireAuth, (req,res)=>{ const id=parseInt(req.params.id,10); db.run('DELETE FROM tasks WHERE id=? AND user_id=?',[id,req.session.user.id],function(e){ if(e) return res.status(500).json({error:'db'}); res.json({deleted:this.changes}); }); });
 
-app.get('/api/events', requireAuth, (req,res)=>{
-  const {from,to}=req.query;
-  let sql='SELECT * FROM events WHERE user_id=?'; const params=[req.session.user.id];
-  if(from){ sql+=' AND start_at>=?'; params.push(from); }
-  if(to){ sql+=' AND start_at<=?'; params.push(to); }
-  sql+=' ORDER BY start_at ASC';
-  db.all(sql, params, (e,rows)=> res.json(rows||[]));
-});
-app.post('/api/events', requireAuth, (req,res)=>{
-  const {title,start_at,end_at,location,reminder_min}=req.body||{}; if(!title||!start_at) return res.status(400).json({error:'data'});
-  db.run('INSERT INTO events (user_id,title,start_at,end_at,location,reminder_min) VALUES (?,?,?,?,?,?)',[req.session.user.id,title.trim(),start_at,end_at||null,location||null,parseInt(reminder_min||0,10)],function(e){ if(e) return res.status(500).json({error:'db'}); res.status(201).json({id:this.lastID}); });
-});
-app.patch('/api/events/:id', requireAuth, (req,res)=>{
-  const id=parseInt(req.params.id,10);
-  const {title,start_at,end_at,location,reminder_min}=req.body||{};
-  db.run('UPDATE events SET title=?, start_at=?, end_at=?, location=?, reminder_min=? WHERE id=? AND user_id=?',[title,start_at,end_at,location,parseInt(reminder_min||0,10),id,req.session.user.id],function(e){ if(e) return res.status(500).json({error:'db'}); res.json({updated:this.changes}); });
-});
-app.delete('/api/events/:id', requireAuth, (req,res)=>{
-  const id=parseInt(req.params.id,10);
-  db.run('DELETE FROM events WHERE id=? AND user_id=?',[id,req.session.user.id],function(e){ if(e) return res.status(500).json({error:'db'}); res.json({deleted:this.changes}); });
-});
+app.get('/api/events', requireAuth, (req,res)=>{ const {from,to}=req.query; let sql='SELECT * FROM events WHERE user_id=?'; const params=[req.session.user.id]; if(from){ sql+=' AND start_at>=?'; params.push(from); } if(to){ sql+=' AND start_at<=?'; params.push(to); } sql+=' ORDER BY start_at ASC'; db.all(sql, params, (e,rows)=> res.json(rows||[])); });
+app.post('/api/events', requireAuth, (req,res)=>{ const {title,start_at,end_at,location,reminder_min}=req.body||{}; if(!title||!start_at) return res.status(400).json({error:'data'}); db.run('INSERT INTO events (user_id,title,start_at,end_at,location,reminder_min) VALUES (?,?,?,?,?,?)',[req.session.user.id,title.trim(),start_at,end_at||null,location||null,parseInt(reminder_min||0,10)],function(e){ if(e) return res.status(500).json({error:'db'}); res.status(201).json({id:this.lastID}); }); });
+app.patch('/api/events/:id', requireAuth, (req,res)=>{ const id=parseInt(req.params.id,10); const {title,start_at,end_at,location,reminder_min}=req.body||{}; db.run('UPDATE events SET title=?, start_at=?, end_at=?, location=?, reminder_min=? WHERE id=? AND user_id=?',[title,start_at,end_at,location,parseInt(reminder_min||0,10),id,req.session.user.id],function(e){ if(e) return res.status(500).json({error:'db'}); res.json({updated:this.changes}); }); });
+app.delete('/api/events/:id', requireAuth, (req,res)=>{ const id=parseInt(req.params.id,10); db.run('DELETE FROM events WHERE id=? AND user_id=?',[id,req.session.user.id],function(e){ if(e) return res.status(500).json({error:'db'}); res.json({deleted:this.changes}); }); });
 
-app.get('/api/shopping', requireAuth, (req,res)=>{
-  db.all('SELECT * FROM shopping_items WHERE user_id=? ORDER BY id DESC',[req.session.user.id],(e,rows)=> res.json(rows||[]));
-});
-app.post('/api/shopping', requireAuth, (req,res)=>{
-  const {title,qty}=req.body||{}; if(!title) return res.status(400).json({error:'title'});
-  db.run('INSERT INTO shopping_items (user_id,title,qty) VALUES (?,?,?)',[req.session.user.id,title.trim(),qty||null],function(e){ if(e) return res.status(500).json({error:'db'}); res.status(201).json({id:this.lastID}); });
-});
-app.patch('/api/shopping/:id', requireAuth, (req,res)=>{
-  const id=parseInt(req.params.id,10); const done=req.body&&req.body.done?1:0;
-  db.run('UPDATE shopping_items SET done=? WHERE id=? AND user_id=?',[done,id,req.session.user.id],function(e){ if(e) return res.status(500).json({error:'db'}); res.json({updated:this.changes}); });
-});
-app.delete('/api/shopping/:id', requireAuth, (req,res)=>{
-  const id=parseInt(req.params.id,10);
-  db.run('DELETE FROM shopping_items WHERE id=? AND user_id=?',[id,req.session.user.id],function(e){ if(e) return res.status(500).json({error:'db'}); res.json({deleted:this.changes}); });
-});
+app.get('/api/shopping', requireAuth, (req,res)=>{ db.all('SELECT * FROM shopping_items WHERE user_id=? ORDER BY id DESC',[req.session.user.id],(e,rows)=> res.json(rows||[])); });
+app.post('/api/shopping', requireAuth, (req,res)=>{ const {title,qty}=req.body||{}; if(!title) return res.status(400).json({error:'title'}); db.run('INSERT INTO shopping_items (user_id,title,qty) VALUES (?,?,?)',[req.session.user.id,title.trim(),qty||null],function(e){ if(e) return res.status(500).json({error:'db'}); res.status(201).json({id:this.lastID}); }); });
+app.patch('/api/shopping/:id', requireAuth, (req,res)=>{ const id=parseInt(req.params.id,10); const done=req.body&&req.body.done?1:0; db.run('UPDATE shopping_items SET done=? WHERE id=? AND user_id=?',[done,id,req.session.user.id],function(e){ if(e) return res.status(500).json({error:'db'}); res.json({updated:this.changes}); }); });
+app.delete('/api/shopping/:id', requireAuth, (req,res)=>{ const id=parseInt(req.params.id,10); db.run('DELETE FROM shopping_items WHERE id=? AND user_id=?',[id,req.session.user.id],function(e){ if(e) return res.status(500).json({error:'db'}); res.json({deleted:this.changes}); }); });
 
-app.get('/api/bills', requireAuth, (req,res)=>{
-  db.all('SELECT * FROM bills WHERE user_id=? ORDER BY due_date ASC',[req.session.user.id],(e,rows)=> res.json(rows||[]));
-});
-app.post('/api/bills', requireAuth, (req,res)=>{
-  const {title,amount,due_date,category}=req.body||{}; if(!title||!amount||!due_date) return res.status(400).json({error:'data'});
-  db.run('INSERT INTO bills (user_id,title,amount,due_date,category) VALUES (?,?,?,?,?)',[req.session.user.id,title.trim(),amount,due_date,category||null],function(e){ if(e) return res.status(500).json({error:'db'}); res.status(201).json({id:this.lastID}); });
-});
-app.patch('/api/bills/:id', requireAuth, (req,res)=>{
-  const id=parseInt(req.params.id,10); const paid=req.body&&req.body.paid?1:0;
-  db.run('UPDATE bills SET paid=? WHERE id=? AND user_id=?',[paid,id,req.session.user.id],function(e){ if(e) return res.status(500).json({error:'db'}); res.json({updated:this.changes}); });
-});
-app.delete('/api/bills/:id', requireAuth, (req,res)=>{
-  const id=parseInt(req.params.id,10);
-  db.run('DELETE FROM bills WHERE id=? AND user_id=?',[id,req.session.user.id],function(e){ if(e) return res.status(500).json({error:'db'}); res.json({deleted:this.changes}); });
-});
+app.get('/api/bills', requireAuth, (req,res)=>{ db.all('SELECT * FROM bills WHERE user_id=? ORDER BY due_date ASC',[req.session.user.id],(e,rows)=> res.json(rows||[])); });
+app.post('/api/bills', requireAuth, (req,res)=>{ const {title,amount,due_date,category}=req.body||{}; if(!title||!amount||!due_date) return res.status(400).json({error:'data'}); db.run('INSERT INTO bills (user_id,title,amount,due_date,category) VALUES (?,?,?,?,?)',[req.session.user.id,title.trim(),amount,due_date,category||null],function(e){ if(e) return res.status(500).json({error:'db'}); res.status(201).json({id:this.lastID}); }); });
+app.patch('/api/bills/:id', requireAuth, (req,res)=>{ const id=parseInt(req.params.id,10); const paid=req.body&&req.body.paid?1:0; db.run('UPDATE bills SET paid=? WHERE id=? AND user_id=?',[paid,id,req.session.user.id],function(e){ if(e) return res.status(500).json({error:'db'}); res.json({updated:this.changes}); }); });
+app.delete('/api/bills/:id', requireAuth, (req,res)=>{ const id=parseInt(req.params.id,10); db.run('DELETE FROM bills WHERE id=? AND user_id=?',[id,req.session.user.id],function(e){ if(e) return res.status(500).json({error:'db'}); res.json({deleted:this.changes}); }); });
 
 app.get('/api/expenses/summary', requireAuth, (req,res)=>{
   const year=parseInt(req.query.year||new Date().getFullYear(),10);
@@ -331,11 +250,11 @@ app.get('/api/alerts', requireAuth, (req,res)=>{
     db.all('SELECT title FROM tasks WHERE user_id=? AND due_at <= ? AND completed=0',[req.session.user.id, todayEnd.toISOString()], (e2,ts)=>{
       (ts||[]).forEach(t=> items.push({type:'task', text:`Tarefa para hoje: ${t.title}`}));
       db.all('SELECT title,due_date,amount FROM bills WHERE user_id=? AND paid=0 AND due_date <= ? ORDER BY due_date ASC',[req.session.user.id, soonBills], (e3,bs)=>{
-        (bs||[]).forEach(b=> items.push({type:'bill', text:`Conta próxima: ${b.title} — R$${b.amount} (${b.due_date})`}));
+        (bs||[]).forEach(b=> items.push({type:'bill', text:`Conta próxima: ${b.title}  R${b.amount} (${b.due_date})`}));
         res.json({total:items.length, items});
       });
     });
   });
 });
 
-app.listen(port, ()=> console.log('Ordeminds v3.1 on :' + port));
+app.listen(port, ()=> console.log('Ordeminds v3.2 on :' + port));

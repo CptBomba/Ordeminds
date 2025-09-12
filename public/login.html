@@ -1,26 +1,29 @@
-<!doctype html><html lang="pt-br"><head>
+﻿<!doctype html>
+<html lang="pt-br"><head>
 <meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Entrar — Ordeminds</title>
-<link rel="icon" href="/favicon-32.png">
-<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<title>login  Ordeminds</title>
+<link rel="icon" href="/assets/logo-mark.svg">
 <link rel="stylesheet" href="/assets/style.css"/>
 <script defer src="/assets/theme.js"></script>
-</head><body><header><nav>
-<div class="logo-wrap">
-  <img class="mark" src="/assets/logo-mark-hc.png" alt="logo"/>
-  <img class="word-light" src="/assets/logo-wordmark-white.png" alt="Ordeminds"/>
-  <img class="word-dark" src="/assets/logo-wordmark-dark.png" alt="Ordeminds"/>
-</div>
-<span class="spacer"></span>
-<button id="themeToggle" class="btn"></button>
-<a class="btn" href="/login">Entrar</a>
-<a class="btn primary" href="/signup">Criar conta</a>
+<script defer src="/assets/app.js"></script>
+</head><body>
+<header><nav>
+  <div class="logo-wrap">
+    <img class="mark" src="/assets/logo-mark.svg" alt="logo"/>
+    <img class="word-light" src="/assets/logo-wordmark-white.svg" alt="Ordeminds"/>
+    <img class="word-dark"  src="/assets/logo-wordmark-dark.svg"  alt="Ordeminds"/>
+  </div>
+  <span class="spacer"></span>
+  <button id="themeToggle" class="btn" onclick="toggleTheme()"></button>
+  <a class="btn" data-role="loginBtn" href="/login">Entrar</a>
+  <a class="btn primary" data-role="loginBtn" href="/signup">Criar conta</a>
+  <span id="account"></span>
 </nav></header>
 <div class="center"><div class="formbox">
-  <h1>Entrar — Ordeminds</h1>
+  <h1>login</h1>
   <form method="POST" action="/login">
-    <input type="email" name="email" placeholder="E-mail" required/><input type="password" name="password" placeholder="Senha" required/>
-    <button type="submit">Entrar</button>
+    <label>E-mail</label><input type="email" name="email" required/><label>Senha</label><input type="password" name="password" required/>
+    <button type="submit">Enviar</button>
     <div class="alt"><a href="/">Voltar</a><a href="/forgot">Esqueci a senha</a></div>
   </form>
 </div></div>

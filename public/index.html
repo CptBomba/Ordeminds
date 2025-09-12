@@ -1,32 +1,43 @@
-<!doctype html><html lang="pt-br"><head>
+﻿<!doctype html>
+<html lang="pt-br"><head>
 <meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Ordeminds — Organize a vida</title>
-<link rel="icon" href="/favicon-32.png">
-<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<title>Ordeminds  Organize a vida</title>
+<link rel="icon" href="/assets/logo-mark.svg">
 <link rel="stylesheet" href="/assets/style.css"/>
 <script defer src="/assets/theme.js"></script>
-</head><body><header><nav>
-<div class="logo-wrap">
-  <img class="mark" src="/assets/logo-mark-hc.png" alt="logo"/>
-  <img class="word-light" src="/assets/logo-wordmark-white.png" alt="Ordeminds"/>
-  <img class="word-dark" src="/assets/logo-wordmark-dark.png" alt="Ordeminds"/>
-</div>
-<span class="spacer"></span>
-<button id="themeToggle" class="btn"></button>
-<a class="btn" href="/login">Entrar</a>
-<a class="btn primary" href="/signup">Criar conta</a>
+<script defer src="/assets/app.js"></script>
+</head><body>
+<header><nav>
+  <div class="logo-wrap">
+    <img class="mark" src="/assets/logo-mark.svg" alt="logo"/>
+    <img class="word-light" src="/assets/logo-wordmark-white.svg" alt="Ordeminds"/>
+    <img class="word-dark"  src="/assets/logo-wordmark-dark.svg"  alt="Ordeminds"/>
+  </div>
+  <span class="spacer"></span>
+  <button id="themeToggle" class="btn" onclick="toggleTheme()"></button>
+  <a class="btn" data-role="loginBtn" href="/login">Entrar</a>
+  <a class="btn primary" data-role="loginBtn" href="/signup">Criar conta</a>
+  <span id="account"></span>
 </nav></header>
-<main>
-  <section class="hero">
-    <h1>Organize tudo em um só lugar.</h1>
-    <p>Agenda, calendário, tarefas, despesas e lembretes — com tema claro/escuro e login seguro.</p>
-    <div class="grid">
-      <div class="card"><h3>⏱️ Tarefas</h3><p>Priorize e conclua com listas inteligentes.</p></div>
-      <div class="card"><h3>📅 Agenda</h3><p>Compromissos com lembretes e calendário mensal.</p></div>
-      <div class="card"><h3>🛒 Compras</h3><p>Lista de mercado simples e rápida.</p></div>
-      <div class="card"><h3>💸 Contas</h3><p>Vencimentos e gráfico de gastos mensal.</p></div>
+<main class="layout">
+  <aside class="sidebar">
+    <div class="panel">
+      <h3>Menu</h3>
+      <div class="grid" style="grid-template-columns:1fr">
+        <a class="btn" href="/app">Painel</a>
+        <a class="btn" href="/agenda">Agenda</a>
+        <a class="btn" href="/tasks">Tarefas</a>
+        <a class="btn" href="/shopping">Compras</a>
+        <a class="btn" href="/bills">Contas</a>
+        <a class="btn" href="/reports">Relatórios</a>
+        <a class="btn" href="/profile">Perfil</a>
+      </div>
     </div>
-    <p><a class="btn primary" href="/signup">Começar agora</a></p>
+  </aside>
+  <section>
+    <div class="panel"><h1>Organize tudo em um só lugar.</h1><p>Agenda, calendário, tarefas, despesas e lembretes  com tema claro/escuro e login seguro.</p></div>
+    <div id="month" class="panel"><h3>Calendário</h3></div>
   </section>
 </main>
+<script>document.addEventListener("DOMContentLoaded",()=>drawMonthCalendar("month", new Date().getFullYear(), new Date().getMonth()));</script>
 </body></html>

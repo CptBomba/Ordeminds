@@ -1,0 +1,23 @@
+﻿<!doctype html>
+<html lang="pt-br"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Perfil  Ordeminds</title>
+<link rel="icon" href="/assets/logo-mark.svg">
+<link rel="stylesheet" href="/assets/style.css"/>
+<script defer src="/assets/theme.js"></script>
+<script defer src="/assets/app.js"></script>
+</head><body>
+<header><nav>
+  <div class="logo-wrap">
+    <img class="mark" src="/assets/logo-mark.svg" alt="logo"/>
+    <img class="word-light" src="/assets/logo-wordmark-white.svg" alt="Ordeminds"/>
+    <img class="word-dark"  src="/assets/logo-wordmark-dark.svg"  alt="Ordeminds"/>
+  </div>
+  <span class="spacer"></span>
+  <button id="themeToggle" class="btn" onclick="toggleTheme()"></button>
+  <a class="btn" data-role="loginBtn" href="/login">Entrar</a>
+  <a class="btn primary" data-role="loginBtn" href="/signup">Criar conta</a>
+  <span id="account"></span>
+</nav></header>
+<main class="layout"><aside class="sidebar"><div class="panel"><h3>Menu</h3><div class="grid" style="grid-template-columns:1fr"><a class="btn" href="/app">Painel</a><a class="btn" href="/agenda">Agenda</a><a class="btn" href="/tasks">Tarefas</a><a class="btn" href="/shopping">Compras</a><a class="btn" href="/bills">Contas</a><a class="btn" href="/reports">Relatórios</a><a class="btn" href="/profile">Perfil</a></div></div></aside><section><div class="panel"><h1>Meu perfil</h1><form id="pf" onsubmit="saveProfile(event)"><div class="row"><img class="avatar" id="pfAvatar" src="/api/user/avatar?ts=${Date.now()}" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2232%22 height=%2232%22><circle cx=%2216%22 cy=%2216%22 r=%2216%22 fill=%22%231AC6B2%22/></svg>'" /><input type="file" id="pfFile" accept="image/*"/></div><label>Nome</label><input id="pfName"/><label>Endereço</label><input id="pfAddress"/><label>Trocar senha</label><div class="row"><input id="pfPass" type="password" placeholder="Nova senha (opcional)"><input id="pfConf" type="password" placeholder="Confirmar"></div><button class="btn primary">Salvar</button></form><p class="notice" id="pfMsg" style="display:none"></p></div><script>async function loadProfile(){const r=await fetch("/api/me"); const {user}= await r.json(); if(!user){location="/login"; return;} pfName.value=user.name||\"\"; pfAddress.value=user.address||\"\";} async function saveProfile(e){e.preventDefault(); let avatarBase64=null; if(pfFile.files[0]){ const fr=new FileReader(); const p=new Promise(res=>{fr.onload=()=>res(fr.result)}); fr.readAsDataURL(pfFile.files[0]); avatarBase64 = await p; } const body={ name:pfName.value, address:pfAddress.value, password:pfPass.value, confirm:pfConf.value, avatar:avatarBase64 }; const r=await fetch("/api/user",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)}); pfMsg.style.display="block"; pfMsg.textContent= r.ok? "Atualizado com sucesso." : "Erro: verifique os dados"; if(r.ok){ pfFile.value=""; pfPass.value=""; pfConf.value=""; document.getElementById("navAvatar").src="/api/user/avatar?ts="+Date.now(); pfAvatar.src="/api/user/avatar?ts="+Date.now(); }} document.addEventListener("DOMContentLoaded",loadProfile);</script></section></main>
+</body></html>

@@ -1,7 +1,7 @@
 ﻿<!doctype html>
 <html lang="pt-br"><head>
 <meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Definir nova senha  Ordeminds</title>
+<title>Agenda  Ordeminds</title>
 <link rel="icon" href="/assets/logo-mark.svg">
 <link rel="stylesheet" href="/assets/style.css"/>
 <script defer src="/assets/theme.js"></script>
@@ -19,19 +19,5 @@
   <a class="btn primary" data-role="loginBtn" href="/signup">Criar conta</a>
   <span id="account"></span>
 </nav></header>
-<div class="center"><div class="formbox">
-  <h1>Definir nova senha</h1>
-  <form method="POST" action="/reset">
-    <input id="email" name="email" placeholder="E-mail" required/>
-    <input id="token" name="token" placeholder="Token" required/>
-    <input type="password" name="password" placeholder="Nova senha" required/>
-    <input type="password" name="confirm" placeholder="Confirmar" required/>
-    <button type="submit">Atualizar</button>
-    <div class="alt"><a href="/">Voltar</a><span></span></div>
-  </form>
-</div></div>
-<script>
-const p=(k)=>new URLSearchParams(location.search).get(k)||"";
-email.value=p("email"); token.value=p("token");
-</script>
+<main class="layout"><aside class="sidebar"><div class="panel"><h3>Menu</h3><div class="grid" style="grid-template-columns:1fr"><a class="btn" href="/app">Painel</a><a class="btn" href="/agenda">Agenda</a><a class="btn" href="/tasks">Tarefas</a><a class="btn" href="/shopping">Compras</a><a class="btn" href="/bills">Contas</a><a class="btn" href="/reports">Relatórios</a><a class="btn" href="/profile">Perfil</a></div></div></aside><section><div class="panel"><h1>Agenda</h1><div id="cal-root"></div></div></section></main><script>document.addEventListener("DOMContentLoaded",()=>drawMonthCalendar("cal-root", new Date().getFullYear(), new Date().getMonth()));</script>
 </body></html>
