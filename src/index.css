@@ -1,0 +1,238 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Ordeminds Design System - Modern Personal Management Interface */
+
+@layer base {
+  :root {
+    /* Core Brand Colors */
+    --background: 0 0% 100%;
+    --foreground: 222 13% 11%;
+
+    /* Card System */
+    --card: 0 0% 100%;
+    --card-foreground: 222 13% 11%;
+
+    /* Interactive Elements */
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 13% 11%;
+
+    /* Primary Brand - Modern Blue */
+    --primary: 217 91% 60%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 217 91% 70%;
+
+    /* Secondary - Soft Purple */
+    --secondary: 262 52% 47%;
+    --secondary-foreground: 0 0% 100%;
+
+    /* Success - Natural Green */
+    --success: 158 64% 52%;
+    --success-foreground: 0 0% 100%;
+
+    /* Warning - Vibrant Orange */
+    --warning: 25 95% 53%;
+    --warning-foreground: 0 0% 100%;
+
+    /* Muted Tones */
+    --muted: 220 13% 96%;
+    --muted-foreground: 220 9% 46%;
+
+    /* Accent System */
+    --accent: 220 13% 96%;
+    --accent-foreground: 222 13% 11%;
+
+    /* Destructive */
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Form Elements */
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 217 91% 60%;
+
+    /* Layout */
+    --radius: 0.75rem;
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(217 91% 60%), hsl(262 52% 47%));
+    --gradient-success: linear-gradient(135deg, hsl(158 64% 52%), hsl(142 71% 45%));
+    --gradient-warm: linear-gradient(135deg, hsl(25 95% 53%), hsl(45 93% 58%));
+    --gradient-subtle: linear-gradient(180deg, hsl(220 13% 98%), hsl(220 13% 96%));
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 hsl(220 43% 11% / 0.05);
+    --shadow-md: 0 4px 6px -1px hsl(220 43% 11% / 0.1);
+    --shadow-lg: 0 10px 15px -3px hsl(220 43% 11% / 0.1);
+    --shadow-glow: 0 0 0 1px hsl(217 91% 60% / 0.1), 0 2px 4px 0 hsl(217 91% 60% / 0.1);
+
+    /* Animations */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+    --sidebar-background: 0 0% 98%;
+
+    --sidebar-foreground: 240 5.3% 26.1%;
+
+    --sidebar-primary: 240 5.9% 10%;
+
+    --sidebar-primary-foreground: 0 0% 98%;
+
+    --sidebar-accent: 240 4.8% 95.9%;
+
+    --sidebar-accent-foreground: 240 5.9% 10%;
+
+    --sidebar-border: 220 13% 91%;
+
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    /* Dark Mode Foundation */
+    --background: 222 13% 7%;
+    --foreground: 220 13% 98%;
+
+    --card: 222 13% 9%;
+    --card-foreground: 220 13% 98%;
+
+    --popover: 222 13% 9%;
+    --popover-foreground: 220 13% 98%;
+
+    /* Primary in Dark */
+    --primary: 217 91% 60%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 217 91% 70%;
+
+    /* Secondary in Dark */
+    --secondary: 262 52% 57%;
+    --secondary-foreground: 0 0% 100%;
+
+    /* Success in Dark */
+    --success: 158 64% 52%;
+    --success-foreground: 0 0% 100%;
+
+    /* Warning in Dark */
+    --warning: 25 95% 53%;
+    --warning-foreground: 0 0% 100%;
+
+    /* Muted in Dark */
+    --muted: 222 13% 13%;
+    --muted-foreground: 220 9% 65%;
+
+    --accent: 222 13% 13%;
+    --accent-foreground: 220 13% 98%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Form Elements Dark */
+    --border: 222 13% 15%;
+    --input: 222 13% 13%;
+    --ring: 217 91% 60%;
+
+    /* Gradients Dark */
+    --gradient-primary: linear-gradient(135deg, hsl(217 91% 60%), hsl(262 52% 57%));
+    --gradient-success: linear-gradient(135deg, hsl(158 64% 52%), hsl(142 71% 45%));
+    --gradient-warm: linear-gradient(135deg, hsl(25 95% 53%), hsl(45 93% 58%));
+    --gradient-subtle: linear-gradient(180deg, hsl(222 13% 11%), hsl(222 13% 9%));
+
+    /* Dark Shadows */
+    --shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.2);
+    --shadow-md: 0 4px 6px -1px hsl(0 0% 0% / 0.3);
+    --shadow-lg: 0 10px 15px -3px hsl(0 0% 0% / 0.4);
+    --shadow-glow: 0 0 0 1px hsl(217 91% 60% / 0.2), 0 2px 4px 0 hsl(217 91% 60% / 0.2);
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-muted;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-muted-foreground/30 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-muted-foreground/50;
+  }
+}
+
+@layer components {
+  /* Gradient Backgrounds */
+  .bg-gradient-primary {
+    background: var(--gradient-primary);
+  }
+
+  .bg-gradient-success {
+    background: var(--gradient-success);
+  }
+
+  .bg-gradient-warm {
+    background: var(--gradient-warm);
+  }
+
+  .bg-gradient-subtle {
+    background: var(--gradient-subtle);
+  }
+
+  /* Enhanced Shadows */
+  .shadow-elegant {
+    box-shadow: var(--shadow-lg);
+  }
+
+  .shadow-glow {
+    box-shadow: var(--shadow-glow);
+  }
+
+  /* Interactive Elements */
+  .interactive-hover {
+    transition: var(--transition-smooth);
+  }
+
+  .interactive-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .interactive-scale:hover {
+    transform: scale(1.02);
+    transition: var(--transition-smooth);
+  }
+
+  /* Status Indicators */
+  .status-success {
+    @apply bg-success text-success-foreground;
+  }
+
+  .status-warning {
+    @apply bg-warning text-warning-foreground;
+  }
+
+  .status-muted {
+    @apply bg-muted text-muted-foreground;
+  }
+}
