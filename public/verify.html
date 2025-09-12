@@ -8,7 +8,8 @@
 </head><body><header><nav>
 <div class="logo-wrap">
   <img class="mark" src="/assets/logo-mark-hc.png" alt="logo"/>
-  <img class="word" src="/assets/logo-wordmark-white.png" alt="ORDEMlNDS"/>
+  <img class="word-light" src="/assets/logo-wordmark-white.png" alt="Ordeminds"/>
+  <img class="word-dark" src="/assets/logo-wordmark-dark.png" alt="Ordeminds"/>
 </div>
 <span class="spacer"></span>
 <button id="themeToggle" class="btn"></button>
@@ -17,19 +18,18 @@
 </nav></header>
 <div class="center"><div class="formbox">
   <h1>Verificar e-mail</h1>
-  <p class="notice" id="msg">Enviamos um código de 6 dígitos para seu e-mail. Digite abaixo para confirmar.</p>
+  <p class="notice" id="msg">Enviamos um código de 6 dígitos para seu e-mail. Digite abaixo.</p>
   <form method="POST" action="/verify">
     <input type="email" name="email" id="email" placeholder="Seu e-mail" required/>
     <input name="code" id="code" placeholder="Código (6 dígitos)" required/>
     <button type="submit">Confirmar</button>
-    <div class="alt"><a href="/">Voltar</a><a href="/resend?email=" id="res">Reenviar código</a></div>
+    <div class="alt"><a href="/">Voltar</a><a id="res" href="#">Reenviar código</a></div>
   </form>
 </div></div>
 <script>
 const p=(k)=>new URLSearchParams(location.search).get(k)||'';
-email.value=p('email')||'';
-document.getElementById('res').href='/resend?email=' + encodeURIComponent(email.value);
-if(p('sent')==='1'){document.getElementById('msg').textContent='Código enviado! Verifique sua caixa de entrada.';}
+email.value=p('email')||''; document.getElementById('res').href='/resend?email='+encodeURIComponent(email.value);
+if(p('sent')==='1'){document.getElementById('msg').textContent='Código reenviado!';}
 if(p('err')){const m=decodeURIComponent(p('err'));document.getElementById('msg').classList.add('err');document.getElementById('msg').textContent=m;}
 </script>
 </body></html>

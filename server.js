@@ -20,7 +20,6 @@ if (process.env.NODE_ENV === 'production') {
 }
 app.use(compression());
 
-// Canonical
 const CANONICAL = process.env.CANONICAL_HOST;
 app.use((req,res,next)=>{
   if (CANONICAL && req.headers.host && req.headers.host !== CANONICAL) {
@@ -29,7 +28,6 @@ app.use((req,res,next)=>{
   next();
 });
 
-// DB
 const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, 'data');
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
 const DB_FILE = process.env.DB_FILE || path.join(DATA_DIR, 'ordeminds.db');
@@ -49,15 +47,38 @@ db.serialize(()=>{
     user_id INTEGER NOT NULL,
     title TEXT NOT NULL,
     completed INTEGER DEFAULT 0,
+    due_at DATETIME,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY(user_id) REFERENCES users(id)
   )`);
-  db.run(`CREATE TABLE IF NOT EXISTS password_resets (
+  db.run(`CREATE TABLE IF NOT EXISTS events (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL,
-    token_hash TEXT NOT NULL,
-    expires_at DATETIME NOT NULL,
-    used INTEGER DEFAULT 0,
+    title TEXT NOT NULL,
+    start_at DATETIME NOT NULL,
+    end_at DATETIME,
+    location TEXT,
+    reminder_min INTEGER DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(user_id) REFERENCES users(id)
+  )`);
+  db.run(`CREATE TABLE IF NOT EXISTS shopping_items (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    title TEXT NOT NULL,
+    qty TEXT,
+    done INTEGER DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(user_id) REFERENCES users(id)
+  )`);
+  db.run(`CREATE TABLE IF NOT EXISTS bills (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    title TEXT NOT NULL,
+    amount REAL NOT NULL,
+    due_date DATE NOT NULL,
+    paid INTEGER DEFAULT 0,
+    category TEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY(user_id) REFERENCES users(id)
   )`);
@@ -70,22 +91,26 @@ db.serialize(()=>{
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY(user_id) REFERENCES users(id)
   )`);
-  // In case db existed without columns
-  db.run(`ALTER TABLE users ADD COLUMN email_verified INTEGER DEFAULT 0`, ()=>{});
-  db.run(`ALTER TABLE users ADD COLUMN verified_at DATETIME`, ()=>{});
+  db.run(`CREATE TABLE IF NOT EXISTS password_resets (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    token_hash TEXT NOT NULL,
+    expires_at DATETIME NOT NULL,
+    used INTEGER DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(user_id) REFERENCES users(id)
+  )`);
 });
 
-// Sessions & body
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'CHANGE-ME-SECRET',
+  secret: process.env.SESSION_SECRET || 'CHANGE-ME',
   resave: false,
   saveUninitialized: false,
   cookie: { httpOnly: true, sameSite: 'lax', secure: process.env.NODE_ENV === 'production' }
 }));
 
-// SMTP
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST || 'localhost',
   port: parseInt(process.env.SMTP_PORT || '25', 10),
@@ -95,40 +120,40 @@ const transporter = nodemailer.createTransport({
 const APP_BASE_URL = process.env.APP_BASE_URL || `http://localhost:${port}`;
 const MAIL_FROM = process.env.MAIL_FROM || 'no-reply@ordeminds.local';
 
-// Static
 app.use('/assets', express.static(path.join(__dirname, 'public', 'assets'), { maxAge: '7d', immutable: true }));
-app.use('/', express.static(path.join(__dirname, 'public')));
 
-// Helpers
+function sendPage(res, name){ return res.sendFile(path.join(__dirname, 'public', name)); }
+app.get('/', (req,res)=>sendPage(res,'index.html'));
+app.get('/login', (req,res)=>sendPage(res,'login.html'));
+app.get('/signup', (req,res)=>sendPage(res,'signup.html'));
+app.get('/verify', (req,res)=>sendPage(res,'verify.html'));
+app.get('/forgot', (req,res)=>sendPage(res,'forgot.html'));
+app.get('/reset', (req,res)=>sendPage(res,'reset.html'));
+app.get('/app', (req,res)=>{ if(!req.session.user) return res.redirect('/login'); return sendPage(res,'app.html'); });
+
 const limiterAuth = rateLimit({ windowMs: 60_000, max: 20 });
-const limiterForgot = rateLimit({ windowMs: 60_000, max: 6 });
-const limiterVerify = rateLimit({ windowMs: 60_000, max: 6 });
+const limiterShort = rateLimit({ windowMs: 60_000, max: 30 });
 
-function sendVerifyCode(userId, email, cb) {
-  const code = Math.floor(100000 + Math.random()*900000).toString(); // 6 digits
+function requireAuth(req,res,next){ if(!req.session.user) return res.status(401).json({error:'auth'}); next(); }
+
+function sendVerifyCode(userId, email, cb){
+  const code = Math.floor(100000 + Math.random()*900000).toString();
   const expiresAt = new Date(Date.now() + 30*60*1000).toISOString();
-  db.run('INSERT INTO email_verifications (user_id, code, expires_at) VALUES (?, ?, ?)', [userId, code, expiresAt], async function() {
+  db.run('INSERT INTO email_verifications (user_id, code, expires_at) VALUES (?, ?, ?)', [userId, code, expiresAt], async function(){
     try {
       await transporter.sendMail({
         from: MAIL_FROM, to: email,
         subject: 'Ordeminds — Código de verificação',
-        text: `Seu código é ${code}. Ele expira em 30 minutos.`,
-        html: `<p>Seu código de verificação:</p>
-               <p style="font-size:28px;letter-spacing:6px;font-weight:800">${code}</p>
-               <p>Expira em 30 minutos.</p>`
+        text: `Seu código é ${code}. Expira em 30 minutos.`,
+        html: `<h2>${code}</h2><p>Expira em 30 minutos.</p>`
       });
-    } catch(e) { console.error('verify email send error:', e.message); }
-    if (cb) cb();
+    } catch(e){ console.error('mail', e.message); }
+    if(cb) cb();
   });
 }
 
-function requireAuth(req,res,next){ if(!req.session.user) return res.redirect('/login'); next(); }
+app.get('/api/me', (req,res)=>res.json({user:req.session.user||null}));
 
-// Routes
-app.get('/api/health', (req,res)=>res.json({status:'ok'}));
-app.get('/api/me', (req,res)=>res.json({user:req.session.user || null}));
-
-// Signup: create user, send code, redirect to verify
 app.post('/signup', limiterAuth, (req,res)=>{
   const {name,email,password,confirm} = req.body||{};
   if(!name||!email||!password||password!==confirm) return res.status(400).send('Dados inválidos');
@@ -138,13 +163,10 @@ app.post('/signup', limiterAuth, (req,res)=>{
     if(err) return res.status(400).send(err.message.includes('UNIQUE')?'E-mail já cadastrado':'Erro ao cadastrar');
     const user = { id: this.lastID, name, email: email.trim().toLowerCase(), email_verified: 0 };
     req.session.user = user;
-    sendVerifyCode(user.id, user.email, ()=>{
-      res.redirect(`/verify?email=${encodeURIComponent(user.email)}&sent=1`);
-    });
+    sendVerifyCode(user.id, user.email, ()=> res.redirect(`/verify?email=${encodeURIComponent(user.email)}&sent=1`));
   });
 });
 
-// Login: if not verified -> redirect to verify
 app.post('/login', limiterAuth, (req,res)=>{
   const {email,password} = req.body||{};
   if(!email||!password) return res.status(400).send('Informe e-mail e senha');
@@ -157,12 +179,10 @@ app.post('/login', limiterAuth, (req,res)=>{
     res.redirect('/app');
   });
 });
+app.post('/logout',(req,res)=> req.session.destroy(()=> res.redirect('/')));
 
-app.post('/logout', (req,res)=> req.session.destroy(()=> res.redirect('/')));
-
-// Resend verify code
-app.get('/resend', limiterVerify, (req,res)=>{
-  const email = (req.query.email||'').toLowerCase().trim();
+app.get('/resend', limiterShort, (req,res)=>{
+  const email=(req.query.email||'').toLowerCase().trim();
   if(!email) return res.redirect('/verify?err='+encodeURIComponent('Informe o e-mail.'));
   db.get('SELECT id, email_verified FROM users WHERE email = ?', [email], (err,row)=>{
     if(err||!row) return res.redirect('/verify?err='+encodeURIComponent('E-mail não encontrado.'));
@@ -170,13 +190,11 @@ app.get('/resend', limiterVerify, (req,res)=>{
     sendVerifyCode(row.id, email, ()=> res.redirect(`/verify?email=${encodeURIComponent(email)}&sent=1`));
   });
 });
-
-// Verify code
-app.post('/verify', limiterVerify, (req,res)=>{
-  const email = (req.body.email||'').toLowerCase().trim();
-  const code = (req.body.code||'').trim();
+app.post('/verify', limiterShort, (req,res)=>{
+  const email=(req.body.email||'').toLowerCase().trim();
+  const code=(req.body.code||'').trim();
   if(!email||!code) return res.redirect('/verify?err='+encodeURIComponent('Dados inválidos.'));
-  db.get('SELECT id FROM users WHERE email = ?', [email], (err, u)=>{
+  db.get('SELECT id FROM users WHERE email = ?', [email], (err,u)=>{
     if(err||!u) return res.redirect('/verify?err='+encodeURIComponent('E-mail não encontrado.'));
     db.get('SELECT * FROM email_verifications WHERE user_id = ? AND code = ? ORDER BY id DESC LIMIT 1', [u.id, code], (e, row)=>{
       if(e||!row) return res.redirect('/verify?email='+encodeURIComponent(email)+'&err='+encodeURIComponent('Código inválido.'));
@@ -184,82 +202,140 @@ app.post('/verify', limiterVerify, (req,res)=>{
       if(new Date(row.expires_at) < new Date()) return res.redirect('/verify?email='+encodeURIComponent(email)+'&err='+encodeURIComponent('Código expirado.'));
       db.run('UPDATE users SET email_verified = 1, verified_at = CURRENT_TIMESTAMP WHERE id = ?', [u.id], (e1)=>{
         db.run('UPDATE email_verifications SET used = 1 WHERE id = ?', [row.id], ()=>{});
-        if(req.session.user) req.session.user.email_verified = 1;
         res.redirect('/app');
       });
     });
   });
 });
 
-// Forgot/reset (unchanged core)
-app.post('/forgot', limiterForgot, (req,res)=>{
-  const {email} = req.body||{}; if(!email) return res.redirect('/forgot');
-  db.get('SELECT id FROM users WHERE email = ?', [email.trim().toLowerCase()], async (err, row)=>{
-    const generic = ()=> res.redirect('/forgot');
-    if(err||!row) return generic();
-    const token = crypto.randomBytes(32).toString('hex');
-    const hash = crypto.createHash('sha256').update(token).digest('hex');
-    const expiresAt = new Date(Date.now() + 30*60*1000).toISOString();
-    db.run('INSERT INTO password_resets (user_id, token_hash, expires_at) VALUES (?, ?, ?)', [row.id, hash, expiresAt], async ()=>{
-      const resetUrl = `${APP_BASE_URL}/reset?token=${token}&email=${encodeURIComponent(email.trim().toLowerCase())}`;
-      try { await transporter.sendMail({ from: MAIL_FROM, to: email.trim().toLowerCase(),
-        subject: 'Ordeminds — Redefinição de senha', text: `Acesse: ${resetUrl}`,
-        html: `<p>Para redefinir sua senha, clique: <a href="${resetUrl}">Redefinir</a></p>`}); } catch(e){}
-      generic();
+app.post('/forgot', limiterShort, (req,res)=>{
+  const {email}=req.body||{}; if(!email) return res.redirect('/forgot');
+  db.get('SELECT id FROM users WHERE email = ?', [email.trim().toLowerCase()], (err,row)=>{
+    const back=()=>res.redirect('/forgot');
+    if(err||!row) return back();
+    const token=crypto.randomBytes(32).toString('hex');
+    const hash=crypto.createHash('sha256').update(token).digest('hex');
+    const exp=new Date(Date.now()+30*60*1000).toISOString();
+    db.run('INSERT INTO password_resets (user_id, token_hash, expires_at) VALUES (?, ?, ?)', [row.id, hash, exp], async ()=>{
+      const url=`${APP_BASE_URL}/reset?token=${token}&email=${encodeURIComponent(email.trim().toLowerCase())}`;
+      try{ await transporter.sendMail({from:MAIL_FROM,to:email,subject:'Redefinição de senha',text:url,html:`<a href="${url}">Redefinir senha</a>`}); }catch(e){}
+      back();
     });
   });
 });
-
-app.post('/reset', limiterForgot, (req,res)=>{
-  const { token, email, password, confirm } = req.body||{};
+app.post('/reset', limiterShort, (req,res)=>{
+  const {token,email,password,confirm}=req.body||{};
   if(!token||!email||!password||password!==confirm) return res.status(400).send('Dados inválidos');
-  const hash = crypto.createHash('sha256').update(token).digest('hex');
-  db.get(`SELECT pr.id, pr.user_id, pr.expires_at, pr.used
-          FROM password_resets pr JOIN users u ON u.id = pr.user_id AND u.email = ?
-          WHERE pr.token_hash = ? ORDER BY pr.id DESC LIMIT 1`,
-    [email.trim().toLowerCase(), hash], (err, row)=>{
-      if(err||!row) return res.status(400).send('Token inválido');
-      if(row.used) return res.status(400).send('Token já utilizado');
-      if(new Date(row.expires_at) < new Date()) return res.status(400).send('Token expirado');
-      const newHash = bcrypt.hashSync(password, 10);
-      db.run('UPDATE users SET password_hash = ? WHERE id = ?', [newHash, row.user_id], (e1)=>{
-        if(e1) return res.status(500).send('Erro ao atualizar senha');
-        db.run('UPDATE password_resets SET used = 1 WHERE id = ?', [row.id], ()=> res.redirect('/login'));
-      });
+  const hash=crypto.createHash('sha256').update(token).digest('hex');
+  db.get(`SELECT pr.id, pr.user_id, pr.expires_at, pr.used FROM password_resets pr JOIN users u ON u.id=pr.user_id AND u.email=? WHERE pr.token_hash=? ORDER BY pr.id DESC LIMIT 1`, [email.trim().toLowerCase(), hash], (err,row)=>{
+    if(err||!row) return res.status(400).send('Token inválido');
+    if(row.used) return res.status(400).send('Token já utilizado');
+    if(new Date(row.expires_at) < new Date()) return res.status(400).send('Token expirado');
+    const newHash=bcrypt.hashSync(password,10);
+    db.run('UPDATE users SET password_hash=? WHERE id=?',[newHash,row.user_id],()=>{
+      db.run('UPDATE password_resets SET used=1 WHERE id=?',[row.id],()=> res.redirect('/login'));
     });
+  });
 });
 
-// Tasks
+// DATA APIs
 app.get('/api/tasks', requireAuth, (req,res)=>{
-  db.all('SELECT * FROM tasks WHERE user_id = ? ORDER BY id DESC', [req.session.user.id], (err, rows)=>{
-    if(err) return res.status(500).json({error:'db_error'});
-    res.json(rows);
-  });
+  db.all('SELECT * FROM tasks WHERE user_id=? ORDER BY id DESC',[req.session.user.id],(e,rows)=> res.json(rows||[]));
 });
 app.post('/api/tasks', requireAuth, (req,res)=>{
-  const {title} = req.body||{}; if(!title) return res.status(400).json({error:'title_required'});
-  const stmt = db.prepare('INSERT INTO tasks (user_id, title) VALUES (?, ?)');
-  stmt.run(req.session.user.id, title.trim(), function(err){
-    if(err) return res.status(500).json({error:'db_error'});
-    res.status(201).json({id:this.lastID, title:title.trim(), completed:0});
-  });
+  const {title}=req.body||{}; if(!title) return res.status(400).json({error:'title'});
+  db.run('INSERT INTO tasks (user_id,title) VALUES (?,?)',[req.session.user.id,title.trim()],function(e){ if(e) return res.status(500).json({error:'db'}); res.status(201).json({id:this.lastID,title:title.trim(),completed:0}); });
 });
 app.patch('/api/tasks/:id', requireAuth, (req,res)=>{
-  const id = parseInt(req.params.id,10);
-  const completed = req.body&&req.body.completed ? 1 : 0;
-  if(Number.isNaN(id)) return res.status(400).json({error:'invalid_id'});
-  db.run('UPDATE tasks SET completed = ? WHERE id = ? AND user_id = ?', [completed, id, req.session.user.id], function(err){
-    if(err) return res.status(500).json({error:'db_error'});
-    res.json({updated:this.changes});
-  });
+  const id=parseInt(req.params.id,10); const completed=req.body&&req.body.completed?1:0;
+  db.run('UPDATE tasks SET completed=? WHERE id=? AND user_id=?',[completed,id,req.session.user.id],function(e){ if(e) return res.status(500).json({error:'db'}); res.json({updated:this.changes}); });
 });
 app.delete('/api/tasks/:id', requireAuth, (req,res)=>{
-  const id = parseInt(req.params.id,10);
-  if(Number.isNaN(id)) return res.status(400).json({error:'invalid_id'});
-  db.run('DELETE FROM tasks WHERE id = ? AND user_id = ?', [id, req.session.user.id], function(err){
-    if(err) return res.status(500).json({error:'db_error'});
-    res.json({deleted:this.changes});
+  const id=parseInt(req.params.id,10);
+  db.run('DELETE FROM tasks WHERE id=? AND user_id=?',[id,req.session.user.id],function(e){ if(e) return res.status(500).json({error:'db'}); res.json({deleted:this.changes}); });
+});
+
+app.get('/api/events', requireAuth, (req,res)=>{
+  const {from,to}=req.query;
+  let sql='SELECT * FROM events WHERE user_id=?'; const params=[req.session.user.id];
+  if(from){ sql+=' AND start_at>=?'; params.push(from); }
+  if(to){ sql+=' AND start_at<=?'; params.push(to); }
+  sql+=' ORDER BY start_at ASC';
+  db.all(sql, params, (e,rows)=> res.json(rows||[]));
+});
+app.post('/api/events', requireAuth, (req,res)=>{
+  const {title,start_at,end_at,location,reminder_min}=req.body||{}; if(!title||!start_at) return res.status(400).json({error:'data'});
+  db.run('INSERT INTO events (user_id,title,start_at,end_at,location,reminder_min) VALUES (?,?,?,?,?,?)',[req.session.user.id,title.trim(),start_at,end_at||null,location||null,parseInt(reminder_min||0,10)],function(e){ if(e) return res.status(500).json({error:'db'}); res.status(201).json({id:this.lastID}); });
+});
+app.patch('/api/events/:id', requireAuth, (req,res)=>{
+  const id=parseInt(req.params.id,10);
+  const {title,start_at,end_at,location,reminder_min}=req.body||{};
+  db.run('UPDATE events SET title=?, start_at=?, end_at=?, location=?, reminder_min=? WHERE id=? AND user_id=?',[title,start_at,end_at,location,parseInt(reminder_min||0,10),id,req.session.user.id],function(e){ if(e) return res.status(500).json({error:'db'}); res.json({updated:this.changes}); });
+});
+app.delete('/api/events/:id', requireAuth, (req,res)=>{
+  const id=parseInt(req.params.id,10);
+  db.run('DELETE FROM events WHERE id=? AND user_id=?',[id,req.session.user.id],function(e){ if(e) return res.status(500).json({error:'db'}); res.json({deleted:this.changes}); });
+});
+
+app.get('/api/shopping', requireAuth, (req,res)=>{
+  db.all('SELECT * FROM shopping_items WHERE user_id=? ORDER BY id DESC',[req.session.user.id],(e,rows)=> res.json(rows||[]));
+});
+app.post('/api/shopping', requireAuth, (req,res)=>{
+  const {title,qty}=req.body||{}; if(!title) return res.status(400).json({error:'title'});
+  db.run('INSERT INTO shopping_items (user_id,title,qty) VALUES (?,?,?)',[req.session.user.id,title.trim(),qty||null],function(e){ if(e) return res.status(500).json({error:'db'}); res.status(201).json({id:this.lastID}); });
+});
+app.patch('/api/shopping/:id', requireAuth, (req,res)=>{
+  const id=parseInt(req.params.id,10); const done=req.body&&req.body.done?1:0;
+  db.run('UPDATE shopping_items SET done=? WHERE id=? AND user_id=?',[done,id,req.session.user.id],function(e){ if(e) return res.status(500).json({error:'db'}); res.json({updated:this.changes}); });
+});
+app.delete('/api/shopping/:id', requireAuth, (req,res)=>{
+  const id=parseInt(req.params.id,10);
+  db.run('DELETE FROM shopping_items WHERE id=? AND user_id=?',[id,req.session.user.id],function(e){ if(e) return res.status(500).json({error:'db'}); res.json({deleted:this.changes}); });
+});
+
+app.get('/api/bills', requireAuth, (req,res)=>{
+  db.all('SELECT * FROM bills WHERE user_id=? ORDER BY due_date ASC',[req.session.user.id],(e,rows)=> res.json(rows||[]));
+});
+app.post('/api/bills', requireAuth, (req,res)=>{
+  const {title,amount,due_date,category}=req.body||{}; if(!title||!amount||!due_date) return res.status(400).json({error:'data'});
+  db.run('INSERT INTO bills (user_id,title,amount,due_date,category) VALUES (?,?,?,?,?)',[req.session.user.id,title.trim(),amount,due_date,category||null],function(e){ if(e) return res.status(500).json({error:'db'}); res.status(201).json({id:this.lastID}); });
+});
+app.patch('/api/bills/:id', requireAuth, (req,res)=>{
+  const id=parseInt(req.params.id,10); const paid=req.body&&req.body.paid?1:0;
+  db.run('UPDATE bills SET paid=? WHERE id=? AND user_id=?',[paid,id,req.session.user.id],function(e){ if(e) return res.status(500).json({error:'db'}); res.json({updated:this.changes}); });
+});
+app.delete('/api/bills/:id', requireAuth, (req,res)=>{
+  const id=parseInt(req.params.id,10);
+  db.run('DELETE FROM bills WHERE id=? AND user_id=?',[id,req.session.user.id],function(e){ if(e) return res.status(500).json({error:'db'}); res.json({deleted:this.changes}); });
+});
+
+app.get('/api/expenses/summary', requireAuth, (req,res)=>{
+  const year=parseInt(req.query.year||new Date().getFullYear(),10);
+  const start=`${year}-01-01`; const end=`${year}-12-31`;
+  db.all(`SELECT strftime('%m', due_date) AS m, SUM(amount) AS total FROM bills 
+          WHERE user_id=? AND due_date BETWEEN ? AND ? GROUP BY m`, [req.session.user.id, start, end], (e,rows)=>{
+    const map = new Map(); (rows||[]).forEach(r=> map.set(parseInt(r.m,10), r.total||0));
+    const out = Array.from({length:12}, (_,i)=> ({ month:i+1, total: +(map.get(i+1)||0) }));
+    res.json(out);
   });
 });
 
-app.listen(port, ()=> console.log('Ordeminds v2.3 on :' + port));
+app.get('/api/alerts', requireAuth, (req,res)=>{
+  const now = new Date();
+  const next24 = new Date(now.getTime()+24*60*60*1000).toISOString();
+  const todayEnd = new Date(now); todayEnd.setHours(23,59,59,999);
+  const soonBills = new Date(now.getTime()+3*24*60*60*1000).toISOString().slice(0,10);
+  const items = [];
+  db.all('SELECT title,start_at FROM events WHERE user_id=? AND start_at BETWEEN ? AND ? ORDER BY start_at ASC',[req.session.user.id, now.toISOString(), next24], (e,evs)=>{
+    (evs||[]).forEach(ev=> items.push({type:'event', text:`Hoje/amanhã: ${ev.title} (${new Date(ev.start_at).toLocaleString()})`}));
+    db.all('SELECT title FROM tasks WHERE user_id=? AND due_at <= ? AND completed=0',[req.session.user.id, todayEnd.toISOString()], (e2,ts)=>{
+      (ts||[]).forEach(t=> items.push({type:'task', text:`Tarefa para hoje: ${t.title}`}));
+      db.all('SELECT title,due_date,amount FROM bills WHERE user_id=? AND paid=0 AND due_date <= ? ORDER BY due_date ASC',[req.session.user.id, soonBills], (e3,bs)=>{
+        (bs||[]).forEach(b=> items.push({type:'bill', text:`Conta próxima: ${b.title} — R$${b.amount} (${b.due_date})`}));
+        res.json({total:items.length, items});
+      });
+    });
+  });
+});
+
+app.listen(port, ()=> console.log('Ordeminds v3.1 on :' + port));
