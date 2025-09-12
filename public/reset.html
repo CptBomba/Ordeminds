@@ -1,20 +1,33 @@
 <!doctype html><html lang="pt-br"><head>
 <meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Nova senha — Ordeminds</title>
+<title>Definir nova senha — Ordeminds</title>
 <link rel="icon" href="/favicon-32.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="stylesheet" href="/assets/style.css"/>
 <script defer src="/assets/theme.js"></script>
 </head><body><header><nav>
-<div class="logo-wrap"><img src="/assets/logo-mark.png" alt="logo"/><img class="brandword" src="/assets/logo-wordmark.png" alt="Ordeminds"/></div>
+<div class="logo-wrap">
+  <img class="mark" src="/assets/logo-mark-hc.png" alt="logo"/>
+  <img class="word" src="/assets/logo-wordmark-white.png" alt="ORDEMlNDS"/>
+</div>
 <span class="spacer"></span>
 <button id="themeToggle" class="btn"></button>
 <a class="btn" href="/login">Entrar</a>
 <a class="btn primary" href="/signup">Criar conta</a>
-</nav></header><div class="center"><div class="formbox"><h1>Definir nova senha</h1>
-<form onsubmit="doReset(event)"><input id="email" name="email" placeholder="E-mail" required/>
-<input id="token" name="token" placeholder="Token" required/>
-<input type="password" name="password" placeholder="Nova senha" required/>
-<input type="password" name="confirm" placeholder="Confirmar senha" required/>
-<button type="submit">Atualizar senha</button><div class="alt"><a href="/">Voltar</a><span></span></div></form></div></div>
-<script>function get(k){return new URLSearchParams(location.search).get(k)||''}async function doReset(e){e.preventDefault();const d=new URLSearchParams(new FormData(e.target));const r=await fetch('/reset',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:d});if(r.redirected)location=r.url;else alert(await r.text());}window.addEventListener('DOMContentLoaded',()=>{document.getElementById('email').value=get('email');document.getElementById('token').value=get('token');});</script></body></html>
+</nav></header>
+<div class="center"><div class="formbox">
+  <h1>Definir nova senha</h1>
+  <form method="POST" action="/reset">
+    <input id="email" name="email" placeholder="E-mail" required/>
+    <input id="token" name="token" placeholder="Token" required/>
+    <input type="password" name="password" placeholder="Nova senha" required/>
+    <input type="password" name="confirm" placeholder="Confirmar" required/>
+    <button type="submit">Atualizar</button>
+    <div class="alt"><a href="/">Voltar</a><span></span></div>
+  </form>
+</div></div>
+<script>
+const p=(k)=>new URLSearchParams(location.search).get(k)||'';
+email.value=p('email'); token.value=p('token');
+</script>
+</body></html>

@@ -6,19 +6,26 @@
 <link rel="stylesheet" href="/assets/style.css"/>
 <script defer src="/assets/theme.js"></script>
 </head><body><header><nav>
-<div class="logo-wrap"><img src="/assets/logo-mark.png" alt="logo"/><img class="brandword" src="/assets/logo-wordmark.png" alt="Ordeminds"/></div>
+<div class="logo-wrap">
+  <img class="mark" src="/assets/logo-mark-hc.png" alt="logo"/>
+  <img class="word" src="/assets/logo-wordmark-white.png" alt="ORDEMlNDS"/>
+</div>
 <span class="spacer"></span>
 <button id="themeToggle" class="btn"></button>
 <a class="btn" href="/login">Entrar</a>
 <a class="btn primary" href="/signup">Criar conta</a>
-</nav></header><span id='user' class='pill' style='margin-left:1rem'></span><main><h1>Suas tarefas</h1>
-<div class="toolbar"><form onsubmit="addTask(event)"><input id="title" placeholder="Nova tarefa..."/><button>Adicionar</button></form></div>
-<ul class="tasks"></ul></main>
+</nav></header>
+<main>
+  <div class="notice" id="hello" style="display:none"></div>
+  <h1>Suas tarefas</h1>
+  <form onsubmit="addTask(event)"><input id="title" placeholder="Nova tarefa..."/><button>Adicionar</button></form>
+  <ul class="tasks" style="list-style:none;padding:0;display:grid;gap:.6rem;margin-top:1rem"></ul>
+</main>
 <script>
-async function fetchMe(){const r=await fetch('/api/me');const j=await r.json();document.getElementById('user').textContent=j.user?j.user.email:'—';}
-async function loadTasks(){const r=await fetch('/api/tasks');if(!r.ok){alert('Faça login novamente');location='/login';return;}const items=await r.json();const ul=document.querySelector('ul.tasks');ul.innerHTML='';for(const t of items){const li=document.createElement('li');li.className='task'+(t.completed?' done':'');li.innerHTML=`<input type="checkbox" ${t.completed?'checked':''} data-id="${t.id}" /><span>${t.title}</span><button data-del="${t.id}">Excluir</button>`;ul.appendChild(li);}}
-async function addTask(e){e.preventDefault();const title=document.getElementById('title').value.trim();if(!title)return;await fetch('/api/tasks',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title})});document.getElementById('title').value='';loadTasks();}
-document.addEventListener('click',async(e)=>{if(e.target.matches('input[type="checkbox"][data-id]')){const id=e.target.getAttribute('data-id');const completed=e.target.checked;await fetch('/api/tasks/'+id,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({completed})});loadTasks();}if(e.target.matches('button[data-del]')){const id=e.target.getAttribute('data-del');await fetch('/api/tasks/'+id,{method:'DELETE'});loadTasks();}if(e.target.matches('#logout')){await fetch('/logout',{method:'POST'});location.href='/';}});
-window.addEventListener('DOMContentLoaded',()=>{fetchMe();loadTasks();});
+async function me(){const r=await fetch('/api/me');const j=await r.json();if(j.user){const el=document.getElementById('hello');el.style.display='block';el.textContent='Bem-vindo, ' + j.user.name + '!';}}
+async function load(){const r=await fetch('/api/tasks');if(!r.ok){location='/login';return;}const a=await r.json();const ul=document.querySelector('ul.tasks');ul.innerHTML='';for(const t of a){const li=document.createElement('li');li.style.cssText='display:flex;align-items:center;gap:.6rem;padding:.6rem .8rem;border:1px solid rgba(255,255,255,.06);border-radius:10px;background:#0f1733';li.innerHTML=`<input type="checkbox" ${t.completed?'checked':''} data-id="${t.id}"><span style="flex:1">${t.title}</span><button data-del="${t.id}">Excluir</button>`;ul.appendChild(li);}}
+async function addTask(e){e.preventDefault();const v=title.value.trim();if(!v)return;await fetch('/api/tasks',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:v})});title.value='';load();}
+document.addEventListener('click',async e=>{if(e.target.matches('input[type=checkbox][data-id]')){await fetch('/api/tasks/'+e.target.dataset.id,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({completed:e.target.checked})});}if(e.target.matches('button[data-del]')){await fetch('/api/tasks/'+e.target.dataset.del,{method:'DELETE'});} });
+window.addEventListener('DOMContentLoaded',()=>{me();load();});
 </script>
 </body></html>

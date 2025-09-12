@@ -1,8 +1,8 @@
 {
   "name": "ordeminds",
-  "version": "2.0.0",
+  "version": "2.3.0",
   "private": true,
-  "description": "Ordeminds — App Service ready (canonical redirect, SMTP reset, auth, tasks)",
+  "description": "Ordeminds — App Service ready (canonical redirect, SMTP reset, auth, verification, tasks)",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
