@@ -1,18 +1,1 @@
-<!doctype html><html lang="pt-br"><head>
-<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Entrar — Ordeminds</title>
-<link rel="stylesheet" href="/assets/style.css"/>
-<script>
-async function doLogin(e){e.preventDefault();
-  const data = Object.fromEntries(new FormData(e.target).entries());
-  const res = await fetch('/login',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams(data)});
-  if(res.redirected){window.location = res.url;} else {alert('Login demo enviado!');}}
-</script>
-</head><body>
-<header><nav><div class="logo-wrap"><img src="/assets/logo.png" alt="Ordeminds logo"/><div class="brand">ORDE<span class="minds">MINDS</span></div></div><span class="spacer"></span><a class="btn" href="/">Voltar</a></nav></header>
-<div class="center"><div class="login"><h1>Entrar</h1>
-<form onsubmit="doLogin(event)"><input type="email" name="email" placeholder="E-mail" required/>
-<input type="password" name="password" placeholder="Senha" required/>
-<button type="submit">Entrar</button>
-<div class="alt"><a href="#">Criar conta</a><a href="#">Esqueci minha senha</a></div></form>
-</div></div></body></html>
+<!doctype html><html lang="pt-br"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>Entrar — Ordeminds</title><link rel="stylesheet" href="/assets/style.css"/><script>async function doLogin(e){e.preventDefault();const data=new URLSearchParams(new FormData(e.target));const res=await fetch('/login',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:data});if(res.redirected){window.location=res.url;}else{alert('Não foi possível entrar');}}</script></head><body><header><nav><div class="logo-wrap"><img src="/assets/logo-mark.png" alt="Ordeminds logo"/><img class="brandword" src="/assets/logo-wordmark.png" alt="Ordeminds"/></div><span class="spacer"></span><a class="btn" href="/signup">Criar conta</a></nav></header><div class="center"><div class="formbox"><h1>Entrar</h1><form onsubmit="doLogin(event)"><input type="email" name="email" placeholder="E-mail" required/><input type="password" name="password" placeholder="Senha" required/><button type="submit">Entrar</button><div class="alt"><a href="/">Voltar</a><a href="#">Esqueci a senha</a></div></form></div></div></body></html>
