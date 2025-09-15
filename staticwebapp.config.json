@@ -1,25 +1,43 @@
 {
   "navigationFallback": {
     "rewrite": "/index.html",
-    "exclude": [
-      "/assets/*",
-      "/images/*",
-      "/favicon.ico",
-      "/robots.txt"
-    ]
+    "exclude": ["/images/*.{png,jpg,gif,svg,webp}", "/assets/*", "/favicon.ico", "/robots.txt"]
   },
-  "responseOverrides": {
-    "401": {
-      "rewrite": "/index.html"
-    },
-    "404": {
-      "rewrite": "/index.html"
-    }
+  "mimeTypes": {
+    ".json": "application/json",
+    ".js": "text/javascript",
+    ".css": "text/css"
   },
   "globalHeaders": {
-    "X-Frame-Options": "DENY",
+    "Cache-Control": "max-age=31536000",
     "X-Content-Type-Options": "nosniff",
-    "Referrer-Policy": "strict-origin-when-cross-origin",
-    "Permissions-Policy": "geolocation=(), microphone=(), camera=()"
+    "X-Frame-Options": "DENY",
+    "X-XSS-Protection": "1; mode=block"
+  },
+  "routes": [
+    {
+      "route": "/",
+      "rewrite": "/index.html"
+    },
+    {
+      "route": "/login",
+      "rewrite": "/index.html"
+    },
+    {
+      "route": "/app/*",
+      "rewrite": "/index.html"
+    },
+    {
+      "route": "/assets/*",
+      "headers": {
+        "Cache-Control": "max-age=31536000, immutable"
+      }
+    }
+  ],
+  "responseOverrides": {
+    "404": {
+      "rewrite": "/index.html",
+      "statusCode": 200
+    }
   }
 }

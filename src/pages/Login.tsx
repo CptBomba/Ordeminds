@@ -5,6 +5,8 @@ import { Label } from "@/components/ui/label";
 import { Card, CardHeader, CardContent, CardDescription, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CheckCircle, Mail, Lock, User, ArrowRight, Sparkles, Shield } from "lucide-react";
+import { Logo } from "@/components/Logo";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 
@@ -29,11 +31,8 @@ const Login = () => {
         <div className="absolute inset-0 bg-gradient-subtle opacity-10" />
         <div className="relative z-10 flex flex-col justify-center px-12 text-white">
           <div className="mb-8">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                <Sparkles className="w-6 h-6" />
-              </div>
-              <h1 className="text-3xl font-bold">Ordeminds</h1>
+            <div className="mb-6">
+              <Logo size="lg" className="text-white [&_span]:text-white" />
             </div>
             <h2 className="text-4xl font-bold mb-4">
               Organize sua vida com<br />
@@ -66,11 +65,11 @@ const Login = () => {
       <div className="flex-1 flex items-center justify-center p-8 bg-muted/30">
         <div className="w-full max-w-md">
           <div className="lg:hidden mb-8 text-center">
-            <div className="flex items-center justify-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
-                <Sparkles className="w-5 h-5 text-white" />
-              </div>
-              <h1 className="text-2xl font-bold">Ordeminds</h1>
+            <div className="flex items-center justify-center mb-4">
+              <Logo size="md" />
+            </div>
+            <div className="flex justify-center">
+              <ThemeToggle />
             </div>
           </div>
 

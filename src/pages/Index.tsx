@@ -2,13 +2,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
+import { Logo } from "@/components/Logo";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import heroDashboard from "@/assets/hero-dashboard.jpg";
 import {
   CheckCircle2,
   Calendar,
   ShoppingCart,
   CreditCard,
-  Target,
   TrendingUp,
   Sparkles,
   ArrowRight,
@@ -75,14 +76,10 @@ const Index = () => {
       <header className="border-b border-border/40 bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-primary rounded-xl flex items-center justify-center">
-                <Target className="w-5 h-5 text-white" />
-              </div>
-              <h1 className="text-2xl font-bold">Ordeminds</h1>
-            </div>
+            <Logo size="md" />
             
             <div className="flex items-center gap-4">
+              <ThemeToggle />
               <Link to="/login">
                 <Button variant="ghost">Entrar</Button>
               </Link>
@@ -123,7 +120,7 @@ const Index = () => {
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start items-center">
                 <Link to="/login">
                   <Button size="lg" variant="gradient" className="shadow-glow interactive-hover">
-                    <Target className="w-5 h-5 mr-2" />
+                    <CheckCircle2 className="w-5 h-5 mr-2" />
                     Começar Agora - Grátis
                   </Button>
                 </Link>
@@ -281,12 +278,7 @@ const Index = () => {
       <footer className="bg-muted/50 border-t border-border/40 py-12">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center justify-between">
-            <div className="flex items-center gap-3 mb-4 md:mb-0">
-              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                <Target className="w-4 h-4 text-white" />
-              </div>
-              <span className="font-bold text-lg">Ordeminds</span>
-            </div>
+            <Logo size="sm" />
             
             <div className="text-sm text-muted-foreground">
               © 2024 Ordeminds. Todos os direitos reservados.

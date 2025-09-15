@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Logo } from "@/components/Logo";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import {
   CheckCircle2,
   Calendar,
@@ -88,11 +90,9 @@ const Dashboard = () => {
         {/* Sidebar */}
         <div className="w-64 bg-card border-r border-border flex flex-col relative">
           <div className="p-6 flex-1">
-            <div className="flex items-center gap-3 mb-8">
-              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                <Target className="w-4 h-4 text-white" />
-              </div>
-              <h1 className="text-xl font-bold">Ordeminds</h1>
+            <div className="flex items-center justify-between mb-8">
+              <Logo size="sm" showText={false} />
+              <ThemeToggle />
             </div>
 
             <nav className="space-y-2">
